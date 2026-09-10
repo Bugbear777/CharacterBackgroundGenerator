@@ -1017,13 +1017,3 @@ To reduce conflicts and keep the project stable:
 8. Do not commit `node_modules`, build output, or generated temporary files.
 9. Use descriptive commit messages.
 10. Merge completed features into `dev` through Pull Requests.
-
----
-
-# Team
-
-Lorebound is being developed for CSE 499 by:
-
-- Joseph Marlow
-- Marshall Buchanan
-- Tim Maslow
