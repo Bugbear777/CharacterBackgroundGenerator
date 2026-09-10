@@ -1,0 +1,6 @@
+@Lorebound.Api_HostAddress = http://localhost:5110
+
+GET {{Lorebound.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
