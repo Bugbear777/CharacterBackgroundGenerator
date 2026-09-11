@@ -1,6 +1,7 @@
 # CharacterBackgroundGenerator
 
 Joseph's Quote "Not all who wander are lost" - J.R.R. Tolkien
+'Tola Osibo's quote ""
 
 # Lorebound
 
