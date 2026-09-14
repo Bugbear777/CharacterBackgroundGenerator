@@ -37,9 +37,9 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-64 shrink-0 border-r bg-muted/20 md:flex md:flex-col">
-      <div className="flex h-16 items-center gap-2 border-b px-6">
-        <ScrollText className="h-6 w-6" />
+    <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex md:flex-col">
+      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
+        <ScrollText className="h-6 w-6 text-primary" />
 
         <span className="text-lg font-semibold">
           Lorebound
@@ -61,8 +61,8 @@ export function Sidebar() {
               className={[
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               ].join(" ")}
             >
               <Icon className="h-4 w-4" />
@@ -73,17 +73,17 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t p-4">
+      <div className="border-t border-sidebar-border p-4">
         <button
           type="button"
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-primary text-sidebar-primary-foreground">
             JM
           </div>
 
           <div className="min-w-0">
-            <div className="truncate font-medium text-foreground">
+            <div className="truncate font-medium text-sidebar-foreground">
               Joseph Marlow
             </div>
 
