@@ -42,16 +42,16 @@ export function MobileNav() {
 
   return (
     <>
-      <header className="flex h-16 items-center justify-between border-b px-4 md:hidden">
+      <header className="flex h-16 items-center justify-between border-b border-border bg-background px-4 text-foreground md:hidden">
         <div className="flex items-center gap-2">
-          <ScrollText className="h-6 w-6" />
+          <ScrollText className="h-6 w-6 text-primary" />
           <span className="text-lg font-semibold">Lorebound</span>
         </div>
 
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border transition-colors hover:bg-accent hover:text-accent-foreground"
           aria-label="Open navigation"
         >
           <Menu className="h-5 w-5" />
@@ -67,17 +67,17 @@ export function MobileNav() {
             aria-label="Close navigation"
           />
 
-          <aside className="relative z-10 flex h-full w-72 flex-col border-r bg-background shadow-lg">
-            <div className="flex h-16 items-center justify-between border-b px-4">
+          <aside className="relative z-10 flex h-full w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-lg">
+            <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
               <div className="flex items-center gap-2">
-                <ScrollText className="h-6 w-6" />
+                <ScrollText className="h-6 w-6 text-primary" />
                 <span className="text-lg font-semibold">Lorebound</span>
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 aria-label="Close navigation"
               >
                 <X className="h-5 w-5" />
@@ -100,8 +100,8 @@ export function MobileNav() {
                     className={[
                       "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-accent text-accent-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     ].join(" ")}
                   >
                     <Icon className="h-4 w-4" />
@@ -111,21 +111,21 @@ export function MobileNav() {
               })}
             </nav>
 
-            <div className="border-t p-4">
+            <div className="border-t border-sidebar-border p-4">
               <button
                 type="button"
-                className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
+                className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-primary text-sidebar-primary-foreground">
                   JM
                 </div>
 
                 <div className="min-w-0">
-                  <div className="truncate font-medium">
+                  <div className="truncate font-medium text-sidebar-foreground">
                     Joseph Marlow
                   </div>
 
-                  <div className="truncate text-xs text-muted-foreground">
+                  <div className="truncate text-xs">
                     Profile
                   </div>
                 </div>
