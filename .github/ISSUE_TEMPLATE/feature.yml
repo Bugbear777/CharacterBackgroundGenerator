@@ -1,0 +1,43 @@
+name: Feature
+description: A new user-visible capability or API endpoint
+title: "[FEATURE] "
+labels: ["type: feature"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What can a user (GM or player) do after this ships?
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: API / UI contract
+      description: Route, request and response shape, permissions (anonymous, non-member, player, GM, owner).
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      value: "- [ ] "
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: "- "
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [api, auth, database, sharing, characters, builder, frontend, devex, docs, testing, security]
+    validations:
+      required: true
+  - type: textarea
+    id: depends
+    attributes:
+      label: Blocked by
+      description: Issue numbers, for example "#12, #14".
