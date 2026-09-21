@@ -1,0 +1,50 @@
+name: Task
+description: A unit of implementation work (max about one day)
+title: "[TASK] "
+labels: ["type: task"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What needs to be done and why.
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      value: "- [ ] "
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation details
+      description: Files, classes, endpoints, migrations, constraints.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: "- "
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [api, auth, database, sharing, characters, builder, frontend, devex, docs, testing, security]
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size (split anything bigger than M)
+      options: [XS, S, M]
+    validations:
+      required: true
+  - type: textarea
+    id: depends
+    attributes:
+      label: Blocked by
+      description: Issue numbers this depends on, for example "#12, #14". Leave empty if none.

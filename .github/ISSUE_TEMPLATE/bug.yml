@@ -1,0 +1,44 @@
+name: Bug
+description: Something is broken or behaves unexpectedly
+title: "[BUG] "
+labels: ["type: bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Prefer a failing test or an exact request/response.
+      value: "1. \n2. \n3. "
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include error text, status codes, and logs (never paste secrets or cookies).
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [api, auth, database, sharing, characters, builder, frontend, devex, docs, testing, security]
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Branch, OS, browser, .NET and Node versions.
