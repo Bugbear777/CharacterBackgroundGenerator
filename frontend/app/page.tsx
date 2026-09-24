@@ -1,69 +1,213 @@
-import Image from "next/image";
+import {
+  BookOpen,
+  Link2,
+  ScrollText,
+  Sparkles,
+  Users,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-100px"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/.06 px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/.08">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2">
+            <ScrollText className="h-6 w-6 text-primary" />
+
+            <span className="font-heading text-xl font-semibold">
+              Lorebound
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost">
+              Log In
+            </Button>
+
+            <Button>
+              Create Account
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-158px"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-14px w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+      </header>
+
+      <main>
+        <section className="border-b border-border">
+          <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-28">
+            <div className="flex flex-col justify-center">
+              <div className="mb-4 flex items-center gap-2 text-sm font-medium text-primary">
+                <Sparkles className="h-4 w-4" />
+                Narrative character creation
+              </div>
+
+              <h1 className="font-heading text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                Build characters that belong in the world.
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
+                Lorebound helps Game Masters build rich campaign settings and
+                gives players a guided way to create character histories,
+                relationships, motivations, and connections to those worlds.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button size="lg">
+                  Create Account
+                </Button>
+
+                <Button variant="outline" size="lg">
+                  Log In
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center">
+              <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-sm">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                  </div>
+
+                  <div>
+                    <p className="font-semibold">
+                      Your character&apos;s story
+                    </p>
+
+                    <p className="text-sm text-muted-foreground">
+                      Shaped by the campaign setting
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-lg border border-border bg-background p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Homeland
+                    </p>
+
+                    <p className="mt-1 font-medium">
+                      Sasymon
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-border bg-background p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Culture
+                    </p>
+
+                    <p className="mt-1 font-medium">
+                      River Cities
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-border bg-background p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Motivation
+                    </p>
+
+                    <p className="mt-1 font-medium">
+                      Restore the honor of a fallen household
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-heading text-3xl font-bold tracking-tight">
+              Build more than a character sheet
+            </h2>
+
+            <p className="mt-4 text-muted-foreground">
+              Lorebound connects character creation directly to the people,
+              places, cultures, and history of a campaign setting.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <FeatureCard
+              icon={<BookOpen className="h-5 w-5" />}
+              title="Build the World"
+              description="Game Masters organize locations, cultures, factions, religions, professions, events, and other setting lore."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/.08 px-5 transition-colors hover:border-transparent hover:bg-black/.04 dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-158px"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+            <FeatureCard
+              icon={<Users className="h-5 w-5" />}
+              title="Create Your Character"
+              description="Players move through a guided background process focused on history, relationships, beliefs, and motivations."
+            />
+
+            <FeatureCard
+              icon={<Link2 className="h-5 w-5" />}
+              title="Connect the Story"
+              description="Character choices are tied directly to the setting, helping every background feel like part of the same world."
+            />
+          </div>
+        </section>
+
+        <section className="border-t border-border bg-muted/40">
+          <div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-16 text-center sm:px-6 lg:px-8">
+            <h2 className="font-heading text-3xl font-bold">
+              Your story starts with the world around you.
+            </h2>
+
+            <p className="mt-4 max-w-xl text-muted-foreground">
+              Create a Lorebound account and start building campaign settings
+              and character backgrounds together.
+            </p>
+
+            <Button className="mt-8" size="lg">
+              Get Started
+            </Button>
+          </div>
+        </section>
       </main>
+
+      <footer className="border-t border-border">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-muted-foreground sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <div className="flex items-center gap-2">
+            <ScrollText className="h-4 w-4 text-primary" />
+            <span>Lorebound</span>
+          </div>
+
+          <span>
+            Narrative character building for tabletop RPGs.
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+type FeatureCardProps = {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+};
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: FeatureCardProps) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        {icon}
+      </div>
+
+      <h3 className="mt-5 font-heading text-lg font-semibold">
+        {title}
+      </h3>
+
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        {description}
+      </p>
     </div>
   );
 }
