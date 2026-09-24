@@ -21,7 +21,7 @@ GitHub's UI changes over time. If a menu name differs slightly or a workflow is 
    ```powershell
    node docs/project-board/scripts/setup-github.mjs --apply
    ```
-   Options: `--owner`, `--repo`, `--project "<title>"`, `--skip-project` (issues only), `--resync-fields` (re-set Priority/Size/Type/Area on existing items). Re-running never duplicates issues.
+   Options: `--owner`, `--repo`, `--project "<title>"`, `--skip-project` (issues only), `--resync-fields` (re-set Priority Level/Size/Work Type/Area on existing items). Re-running never duplicates issues.
 4. **Views and workflows** [manual]: sections 4 and 5 below.
 5. **Revoke the token** when finished.
 
@@ -35,7 +35,7 @@ GitHub's UI changes over time. If a menu name differs slightly or a workflow is 
 | Short description | Roadmap and task tracking for the Lorebound API, auth, sharing, characters and frontend integration. [script] |
 | README | Contents of `docs/project-board/README.md` [script] |
 | Visibility | Private [script]. Change to Public only if the repository is public and you want that. |
-| Linked repository | `Bugbear777/CharacterBackgroundGenerator` [script] (Project, Settings, Manage access / Linked repositories to confirm) |
+| Linked repository | `CSE499-Lorebound-Team/CharacterBackgroundGenerator` [script] (Project, Settings, Manage access / Linked repositories to confirm) |
 | Owner | The user account that owns the repository |
 | Template | Off |
 
@@ -56,9 +56,9 @@ Built-in fields to show: Title, Assignees, Status, Labels, Milestone, Repository
 | Field | Type | Options | Source |
 |---|---|---|---|
 | **Status** | Single select | Backlog (gray), Ready (blue), In Progress (yellow), In Review (purple), Blocked (red), Done (green) | script tries to replace the default Todo/In Progress/Done; if it warns, edit the options by hand |
-| **Priority** | Single select | P0 - Critical (red), P1 - High (orange), P2 - Medium (yellow), P3 - Low (gray) | [script] |
+| **Priority Level** | Single select | P0 - Critical (red), P1 - High (orange), P2 - Medium (yellow), P3 - Low (gray) | [script]. Not named "Priority" because the org already has a built-in Priority issue field that a project cannot edit. |
 | **Size** | Single select | XS, S, M, L | [script] |
-| **Type** | Single select | Epic, Feature, Task, Bug, Spike, Test, Docs, Chore | [script] |
+| **Work Type** | Single select | Epic, Feature, Task, Bug, Spike, Test, Docs, Chore | [script]. Not named "Type" because GitHub reserves that name. |
 | **Area** | Single select | API, Auth, Database, Sharing, Characters, Builder, Frontend, DevEx, Docs, Testing, Security | [script] |
 | **Milestone** (phase) | Built-in | Phase 0 - Foundations ... Phase 9 - Frontend Integration | [script] creates milestones and assigns them |
 | Target date | Date | (optional, needed for Roadmap layout) | [manual] |
@@ -72,17 +72,17 @@ Create each via **New view**. Filter syntax: comma = OR within one field; separa
 
 | # | Name | Layout | Filter | Group by | Sort | Visible fields |
 |---|---|---|---|---|---|---|
-| 1 | **Board** | Board | `-is:archived` | (column field: Status) | Priority asc | Type, Priority, Size, Milestone, Assignees, Linked pull requests, Sub-issues progress. Column limits if offered: In Progress 6, In Review 6. |
-| 2 | **Backlog** | Table | `status:Backlog,Ready -label:"type: epic"` | Milestone | Priority asc | Title, Type, Area, Priority, Size, Status, Assignees |
-| 3 | **Current Phase** | Table | `milestone:"Phase 0 - Foundations" -label:"type: epic"` (edit to the active phase) | Status | Priority asc | Title, Type, Area, Priority, Size, Assignees |
-| 4 | **My Work** | Table | `assignee:@me -status:Done` | Status | Priority asc | Title, Type, Priority, Size, Milestone |
+| 1 | **Board** | Board | `-is:archived` | (column field: Status) | Priority Level asc | Work Type, Priority Level, Size, Milestone, Assignees, Linked pull requests, Sub-issues progress. Column limits if offered: In Progress 6, In Review 6. |
+| 2 | **Backlog** | Table | `status:Backlog,Ready -label:"type: epic"` | Milestone | Priority Level asc | Title, Work Type, Area, Priority Level, Size, Status, Assignees |
+| 3 | **Current Phase** | Table | `milestone:"Phase 0 - Foundations" -label:"type: epic"` (edit to the active phase) | Status | Priority Level asc | Title, Work Type, Area, Priority Level, Size, Assignees |
+| 4 | **My Work** | Table | `assignee:@me -status:Done` | Status | Priority Level asc | Title, Work Type, Priority Level, Size, Milestone |
 | 5 | **In Review** | Table | `status:"In Review"` | none | Updated desc | Title, Assignees, Linked pull requests, Reviewers |
-| 6 | **Blocked** | Table | `status:Blocked` | Milestone | Priority asc | Title, Assignees, Labels, Parent issue |
-| 7 | **Needs Decision** | Table | `label:needs-decision -status:Done` | Milestone | Priority asc | Title, Type, Assignees, Milestone |
-| 8 | **Bugs** | Table | `label:"type: bug"` | Status | Priority asc | Title, Priority, Size, Assignees |
+| 6 | **Blocked** | Table | `status:Blocked` | Milestone | Priority Level asc | Title, Assignees, Labels, Parent issue |
+| 7 | **Needs Decision** | Table | `label:needs-decision -status:Done` | Milestone | Priority Level asc | Title, Work Type, Assignees, Milestone |
+| 8 | **Bugs** | Table | `label:"type: bug"` | Status | Priority Level asc | Title, Priority Level, Size, Assignees |
 | 9 | **Epics** | Table | `label:"type: epic"` | none | Milestone asc | Title, Milestone, Status, Sub-issues progress |
-| 10 | **Critical Path (P0)** | Table | `priority:"P0 - Critical" -status:Done` | Milestone | Title asc | Title, Type, Area, Size, Status, Assignees |
-| 11 | **By Area** | Table | `-status:Done -label:"type: epic"` | Area | Priority asc | Title, Type, Priority, Size, Status |
+| 10 | **Critical Path (P0)** | Table | `priority-level:"P0 - Critical" -status:Done` | Milestone | Title asc | Title, Work Type, Area, Size, Status, Assignees |
+| 11 | **By Area** | Table | `-status:Done -label:"type: epic"` | Area | Priority Level asc | Title, Work Type, Priority Level, Size, Status |
 | 12 | **Roadmap** | Roadmap | `-status:Done` | Milestone | Target date | Dates: Target date (or Sprint); Markers: Milestones; Zoom: Quarter. Set milestone due dates and Target dates first or items will not appear. |
 
 Make **Board** the default (first) view.
@@ -93,7 +93,7 @@ Project, top-right menu, **Workflows**. Enable each that your plan offers.
 
 | Workflow | Configuration |
 |---|---|
-| **Auto-add to project** | Repository `Bugbear777/CharacterBackgroundGenerator`; filter `is:issue,pr is:open`. (Plans limit how many auto-add workflows exist; one is enough.) |
+| **Auto-add to project** | Repository `CSE499-Lorebound-Team/CharacterBackgroundGenerator`; filter `is:issue,pr is:open`. (Plans limit how many auto-add workflows exist; one is enough.) |
 | **Auto-add sub-issues to project** | On |
 | **Item added to project** | Set Status = Backlog |
 | **Item reopened** | Set Status = Ready |
@@ -115,7 +115,7 @@ Project, top-right, **Insights**, New chart:
 | Progress by phase | Stacked column | Milestone | Count | Status | `-label:"type: epic"` |
 | Burn-up | Historical | Time | Count | Status | `-label:"type: epic"` |
 | Work by area | Bar | Area | Count | Status | `-label:"type: epic"` |
-| Priority mix | Column | Priority | Count | Type | `-status:Done` |
+| Priority Level mix | Column | Priority Level | Count | Work Type | `-status:Done` |
 
 ## 7. Repository settings that support the board
 
@@ -138,7 +138,7 @@ After applying, confirm:
 - [ ] Each work issue shows a **Parent epic** line and (if native sub-issues worked) a parent in the sidebar.
 - [ ] Each epic body lists its children as a task list and shows Sub-issues progress in the Epics view.
 - [ ] Dependencies sections show `#N` links (not bare keys such as `P2-02`).
-- [ ] Priority, Size, Type, Area fields are populated for every item; Status is Ready for unblocked Phase 0 items and Backlog otherwise.
+- [ ] Priority Level, Size, Work Type, Area fields are populated for every item; Status is Ready for unblocked Phase 0 items and Backlog otherwise.
 - [ ] A test PR containing `Closes #N` links to the issue and moves it on the board.
 
 ## 9. Troubleshooting

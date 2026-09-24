@@ -31,7 +31,7 @@ const opt = (n, d) => {
 };
 
 const APPLY = flag('apply');
-const OWNER = opt('owner', 'Bugbear777');
+const OWNER = opt('owner', 'CSE499-Lorebound-Team');
 const REPO = opt('repo', 'CharacterBackgroundGenerator');
 const PROJECT_TITLE = opt('project', 'Lorebound API Roadmap');
 const SKIP_PROJECT = flag('skip-project');
@@ -446,10 +446,10 @@ async function apply(issues, byKey) {
   }
   const readme = readFileSync(README_PATH, 'utf8');
   await gql(
-    'mutation($p:ID!,$d:String!,$r:String!){ updateProjectV2(input:{projectId:$p,shortDescription:$d,readme:$r,public:false}){ projectV2{ id } } }',
+    'mutation($p:ID!,$d:String!,$r:String!){ updateProjectV2(input:{projectId:$p,shortDescription:$d,readme:$r}){ projectV2{ id } } }',
     { p: project.id, d: 'Roadmap and task tracking for the Lorebound API, auth, sharing, characters and frontend integration.', r: readme },
   );
-  console.log('  + description and README set (project visibility: private)');
+  console.log('  + description and README set (visibility left unchanged)');
 
   const loadFields = async () => {
     const d = await gql(
@@ -463,9 +463,9 @@ async function apply(issues, byKey) {
   };
   let fields = await loadFields();
   const selectDefs = {
-    Priority: Object.values(PRIORITIES).map((p) => ({ name: p.option, color: p.color, description: p.desc })),
+    'Priority Level': Object.values(PRIORITIES).map((p) => ({ name: p.option, color: p.color, description: p.desc })),
     Size: Object.entries(SIZES).map(([n, s]) => ({ name: n, color: s.color, description: s.desc })),
-    Type: Object.values(TYPES).map((t) => ({ name: t.option, color: t.pcolor, description: t.desc })),
+    'Work Type': Object.values(TYPES).map((t) => ({ name: t.option, color: t.pcolor, description: t.desc })),
     Area: Object.values(AREAS).map((a) => ({ name: a, color: 'BLUE', description: `${a} work` })),
   };
   for (const [name, options] of Object.entries(selectDefs)) {
@@ -477,19 +477,28 @@ async function apply(issues, byKey) {
     console.log(`  + field ${name}`);
   }
   fields = await loadFields();
-  const status = fields.find((f) => f.name === 'Status');
-  if (status && !STATUSES.every((s) => status.options?.some((o) => o.name === s.name))) {
+  // Existing single-select fields (for example from a board template) may have different options.
+  const reconcile = { Status: STATUSES, 'Priority Level': selectDefs['Priority Level'], Size: selectDefs.Size };
+  for (const [name, wanted] of Object.entries(reconcile)) {
+    const f = fields.find((x) => x.name === name);
+    if (!f) {
+      console.log(`  ! field ${name} not found`);
+      continue;
+    }
+    const have = (f.options ?? []).map((o) => o.name).sort().join(', ');
+    const want = wanted.map((o) => o.name).sort().join(', ');
+    if (have === want) continue;
     try {
       await gql(
         'mutation($i:UpdateProjectV2FieldInput!){ updateProjectV2Field(input:$i){ projectV2Field{ ... on ProjectV2SingleSelectField{ id } } } }',
-        { i: { fieldId: status.id, singleSelectOptions: STATUSES } },
+        { i: { fieldId: f.id, singleSelectOptions: wanted } },
       );
-      console.log('  + Status options set');
-      fields = await loadFields();
+      console.log(`  ~ ${name} options: [${have || 'none'}] -> [${want}]`);
     } catch (e) {
-      console.log(`  ! Could not update Status options automatically (${e.message}). Set them manually: ${STATUSES.map((s) => s.name).join(', ')}`);
+      console.log(`  ! Could not update ${name} options automatically (${e.message}). Set them manually: ${wanted.map((o) => o.name).join(', ')}`);
     }
   }
+  fields = await loadFields();
   const F = (name) => fields.find((f) => f.name === name);
   const opt2 = (field, optName) => F(field)?.options?.find((o) => o.name === optName)?.id;
 
@@ -500,32 +509,41 @@ async function apply(issues, byKey) {
   for (;;) {
     const page = await gql(
       `query($id:ID!,$c:String){ node(id:$id){ ... on ProjectV2 { items(first:100, after:$c){ pageInfo{ hasNextPage endCursor }
-         nodes{ id content{ ... on Issue{ id } } } } } } }`,
+         nodes{ id content{ ... on Issue{ id } }
+           fieldValues(first:30){ nodes{ ... on ProjectV2ItemFieldSingleSelectValue{ name field{ ... on ProjectV2SingleSelectField{ name } } } } } } } } } }`,
       { id: project.id, c: cursor },
     );
-    for (const n of page.node.items.nodes) if (n.content?.id) present.set(n.content.id, n.id);
+    for (const n of page.node.items.nodes) {
+      if (!n.content?.id) continue;
+      const values = {};
+      for (const v of n.fieldValues?.nodes ?? []) if (v?.field?.name) values[v.field.name] = v.name;
+      present.set(n.content.id, { id: n.id, values });
+    }
     if (!page.node.items.pageInfo.hasNextPage) break;
     cursor = page.node.items.pageInfo.endCursor;
   }
   let added = 0;
   for (const i of issues) {
     const cur = made.get(i.key);
-    let itemId = present.get(cur.node_id);
+    const known = present.get(cur.node_id);
+    let itemId = known?.id;
+    const current = known?.values ?? {};
     const isNew = !itemId;
     if (isNew) {
       const r = await gql('mutation($p:ID!,$c:ID!){ addProjectV2ItemById(input:{projectId:$p,contentId:$c}){ item{ id } } }', { p: project.id, c: cur.node_id });
       itemId = r.addProjectV2ItemById.item.id;
       added++;
     }
-    if (!isNew && !RESYNC) continue;
+    // Fill blanks only; never overwrite a value someone already set (Status is never overwritten).
     const startStatus = i.type !== 'epic' && i.phase === 0 && i.depends.length === 0 ? 'Ready' : 'Backlog';
     const sets = [
-      ['Priority', PRIORITIES[i.priority].option],
+      ['Priority Level', PRIORITIES[i.priority].option],
       ['Size', i.size],
-      ['Type', TYPES[i.type].option],
+      ['Work Type', TYPES[i.type].option],
       ['Area', AREAS[i.area]],
-      ...(isNew ? [['Status', startStatus]] : []),
-    ];
+    ].filter(([field]) => isNew || RESYNC || !current[field]);
+    if (!current.Status) sets.push(['Status', startStatus]);
+    if (!sets.length) continue;
     const muts = [];
     sets.forEach(([field, optName], n) => {
       const optionId = opt2(field, optName);
