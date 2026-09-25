@@ -1,16 +1,24 @@
 using Lorebound.Api.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lorebound.Api.Data;
 
-public class LoreboundDbContext : DbContext
+// Identity supplies the Users DbSet. Its roles tables stay unused because
+// roles are per-setting (see P2-01).
+public class LoreboundDbContext
+    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
-  public LoreboundDbContext(DbContextOptions<LoreboundDbContext> options)
+  private readonly TimeProvider _timeProvider;
+
+  public LoreboundDbContext(
+      DbContextOptions<LoreboundDbContext> options,
+      TimeProvider timeProvider)
       : base(options)
   {
+    _timeProvider = timeProvider;
   }
-
-  public DbSet<User> Users => Set<User>();
 
   public DbSet<CampaignSetting> CampaignSettings => Set<CampaignSetting>();
 
@@ -23,10 +31,18 @@ public class LoreboundDbContext : DbContext
   {
     base.OnModelCreating(modelBuilder);
 
-    modelBuilder.Entity<User>()
-        .HasMany(user => user.CampaignSettings)
-        .WithOne(setting => setting.Owner)
-        .HasForeignKey(setting => setting.OwnerUserId);
+    modelBuilder.Entity<ApplicationUser>(user =>
+    {
+      user.Property(u => u.DisplayName)
+          .IsRequired()
+          .HasMaxLength(60);
+
+      // A user who owns settings cannot be hard-deleted (see P6-11).
+      user.HasMany(u => u.CampaignSettings)
+          .WithOne(setting => setting.Owner)
+          .HasForeignKey(setting => setting.OwnerUserId)
+          .OnDelete(DeleteBehavior.Restrict);
+    });
 
     modelBuilder.Entity<CampaignSetting>()
         .HasMany(setting => setting.Entries)
@@ -49,5 +65,45 @@ public class LoreboundDbContext : DbContext
         .WithMany(entry => entry.IncomingRelationships)
         .HasForeignKey(relationship => relationship.TargetEntryId)
         .OnDelete(DeleteBehavior.Restrict);
+  }
+
+  // ExecuteUpdate/ExecuteDelete bypass these overrides; bulk updates must
+  // set UpdatedAt explicitly.
+  public override int SaveChanges(bool acceptAllChangesOnSuccess)
+  {
+    ApplyTimestamps();
+    return base.SaveChanges(acceptAllChangesOnSuccess);
+  }
+
+  public override Task<int> SaveChangesAsync(
+      bool acceptAllChangesOnSuccess,
+      CancellationToken cancellationToken = default)
+  {
+    ApplyTimestamps();
+    return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+  }
+
+  private void ApplyTimestamps()
+  {
+    var now = _timeProvider.GetUtcNow();
+
+    foreach (var entry in ChangeTracker.Entries<ICreatedAt>())
+    {
+      if (entry.State == EntityState.Added)
+      {
+        entry.Entity.CreatedAt = now;
+      }
+      else if (entry.State == EntityState.Modified)
+      {
+        // CreatedAt is write-once.
+        entry.Property(e => e.CreatedAt).IsModified = false;
+      }
+
+      if (entry.Entity is ITimestamped timestamped
+          && entry.State is EntityState.Added or EntityState.Modified)
+      {
+        timestamped.UpdatedAt = now;
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
 namespace Lorebound.Api.Models;
 
-public class CampaignSetting
+public class CampaignSetting : ITimestamped
 {
   public Guid Id { get; set; }
 
@@ -10,11 +10,15 @@ public class CampaignSetting
 
   public Guid OwnerUserId { get; set; }
 
-  public User Owner { get; set; } = null!;
+  public ApplicationUser Owner { get; set; } = null!;
 
   public ICollection<SettingEntry> Entries { get; set; }
       = new List<SettingEntry>();
 
   public ICollection<SettingEntryRelationship> Relationships { get; set; }
       = new List<SettingEntryRelationship>();
+
+  public DateTimeOffset CreatedAt { get; set; }
+
+  public DateTimeOffset UpdatedAt { get; set; }
 }
