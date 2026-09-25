@@ -27,6 +27,13 @@ public class LoreboundDbContext
   public DbSet<SettingEntryRelationship> SettingEntryRelationships
       => Set<SettingEntryRelationship>();
 
+  protected override void ConfigureConventions(
+      ModelConfigurationBuilder configurationBuilder)
+  {
+    // Every enum column is stored as its name, including enums added later.
+    configurationBuilder.Properties<Enum>().HaveConversion<string>();
+  }
+
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     base.OnModelCreating(modelBuilder);
