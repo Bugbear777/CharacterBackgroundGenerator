@@ -1,16 +1,19 @@
 using Lorebound.Api.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lorebound.Api.Data;
 
-public class LoreboundDbContext : DbContext
+// Identity supplies the Users DbSet. Its roles tables stay unused because
+// roles are per-setting (see P2-01).
+public class LoreboundDbContext
+    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
   public LoreboundDbContext(DbContextOptions<LoreboundDbContext> options)
       : base(options)
   {
   }
-
-  public DbSet<User> Users => Set<User>();
 
   public DbSet<CampaignSetting> CampaignSettings => Set<CampaignSetting>();
 
@@ -23,10 +26,18 @@ public class LoreboundDbContext : DbContext
   {
     base.OnModelCreating(modelBuilder);
 
-    modelBuilder.Entity<User>()
-        .HasMany(user => user.CampaignSettings)
-        .WithOne(setting => setting.Owner)
-        .HasForeignKey(setting => setting.OwnerUserId);
+    modelBuilder.Entity<ApplicationUser>(user =>
+    {
+      user.Property(u => u.DisplayName)
+          .IsRequired()
+          .HasMaxLength(60);
+
+      // A user who owns settings cannot be hard-deleted (see P6-11).
+      user.HasMany(u => u.CampaignSettings)
+          .WithOne(setting => setting.Owner)
+          .HasForeignKey(setting => setting.OwnerUserId)
+          .OnDelete(DeleteBehavior.Restrict);
+    });
 
     modelBuilder.Entity<CampaignSetting>()
         .HasMany(setting => setting.Entries)

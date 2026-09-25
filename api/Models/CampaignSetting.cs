@@ -10,7 +10,7 @@ public class CampaignSetting
 
   public Guid OwnerUserId { get; set; }
 
-  public User Owner { get; set; } = null!;
+  public ApplicationUser Owner { get; set; } = null!;
 
   public ICollection<SettingEntry> Entries { get; set; }
       = new List<SettingEntry>();
