@@ -1,3 +1,11 @@
+"use client";
+
+import { useState } from "react";
+import {
+  AuthDialog,
+  AuthMode,
+} from "@/components/auth/AuthDialog";
+
 import {
   BookOpen,
   Link2,
@@ -9,6 +17,18 @@ import {
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode>("login");
+
+  function openLogin() {
+    setAuthMode("login");
+    setAuthOpen(true);
+  }
+
+  function openRegister() {
+    setAuthMode("register");
+    setAuthOpen(true);
+  }
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
@@ -22,13 +42,16 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost">
-              Log In
-            </Button>
+          <Button
+            variant="ghost"
+            onClick={openLogin}
+          >
+            Log In
+          </Button>
 
-            <Button>
-              Create Account
-            </Button>
+          <Button onClick={openRegister}>
+            Create Account
+          </Button>
           </div>
         </div>
       </header>
@@ -53,13 +76,20 @@ export default function Home() {
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg">
-                  Create Account
-                </Button>
+              <Button
+                size="lg"
+                onClick={openRegister}
+              >
+                Create Account
+              </Button>
 
-                <Button variant="outline" size="lg">
-                  Log In
-                </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={openLogin}
+              >
+                Log In
+              </Button>
               </div>
             </div>
 
@@ -161,7 +191,11 @@ export default function Home() {
               and character backgrounds together.
             </p>
 
-            <Button className="mt-8" size="lg">
+            <Button
+              className="mt-8"
+              size="lg"
+              onClick={openRegister}
+            >
               Get Started
             </Button>
           </div>
@@ -180,6 +214,12 @@ export default function Home() {
           </span>
         </div>
       </footer>
+      <AuthDialog
+        key={authMode}
+        open={authOpen}
+        onOpenChange={setAuthOpen}
+        initialMode={authMode}
+      />
     </div>
   );
 }
