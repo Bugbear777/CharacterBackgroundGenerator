@@ -25,16 +25,20 @@ builder.Services.AddDbContext<LoreboundDbContext>(options =>
 
 var app = builder.Build();
 
-app.UseCors("Frontend");
-app.MapControllers();
-
 // Configure the HTTP request pipeline.
+// TODO(P0-05): app.UseExceptionHandler() goes here, first in the pipeline.
+
+app.UseHttpsRedirection();
+app.UseCors("Frontend");
+
+// TODO(P1-01): app.UseAuthentication() and app.UseAuthorization() go here,
+// after CORS and before endpoints are mapped.
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
+app.MapControllers();
 
 app.Run();
