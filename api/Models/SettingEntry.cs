@@ -1,6 +1,6 @@
 namespace Lorebound.Api.Models;
 
-public class SettingEntry
+public class SettingEntry : ITimestamped
 {
   public Guid Id { get; set; }
 
@@ -19,4 +19,8 @@ public class SettingEntry
 
   public ICollection<SettingEntryRelationship> IncomingRelationships { get; set; }
       = new List<SettingEntryRelationship>();
+
+  public DateTimeOffset CreatedAt { get; set; }
+
+  public DateTimeOffset UpdatedAt { get; set; }
 }

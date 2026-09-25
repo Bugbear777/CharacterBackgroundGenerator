@@ -2,7 +2,7 @@
 
 Single source of truth for building the Lorebound backend (auth, sharing, settings, characters, builder) and wiring the frontend to it. Every piece of work is a GitHub issue on this board.
 
-**Repo:** [Bugbear777/CharacterBackgroundGenerator](https://github.com/Bugbear777/CharacterBackgroundGenerator) | **Integration branch:** `dev` | **Team workflow:** see the repository README
+**Repo:** [CSE499-Lorebound-Team/CharacterBackgroundGenerator](https://github.com/CSE499-Lorebound-Team/CharacterBackgroundGenerator) | **Integration branch:** `dev` | **Team workflow:** see the repository README
 
 ---
 
@@ -10,7 +10,7 @@ Single source of truth for building the Lorebound backend (auth, sharing, settin
 
 | I want to... | Go to view |
 |---|---|
-| Pick up work | **Backlog** (filter Status = Ready, sort by Priority) |
+| Pick up work | **Backlog** (filter Status = Ready, sort by Priority Level) |
 | See what everyone is doing | **Board** |
 | See only my work | **My Work** |
 | Review PRs | **In Review** |
@@ -35,8 +35,8 @@ WIP limit: **max 2 items In Progress per person**. Finish or unblock before star
 
 | Field | Values |
 |---|---|
-| **Type** | Epic, Feature, Task, Bug, Spike, Test, Docs, Chore (mirrors `type:` labels) |
-| **Priority** | P0 Critical (critical path), P1 High, P2 Medium, P3 Low |
+| **Work Type** | Epic, Feature, Task, Bug, Spike, Test, Docs, Chore (mirrors `type:` labels; named "Work Type" because "Type" is reserved by GitHub) |
+| **Priority Level** | P0 Critical (critical path), P1 High, P2 Medium, P3 Low |
 | **Size** | XS (about 1h), S (half a day), M (about 1 day), L (epics only; anything else this big must be split) |
 | **Area** | API, Auth, Database, Sharing, Characters, Builder, Frontend, DevEx, Docs, Testing, Security |
 | **Milestone** | The phase (Phase 0 to Phase 9) |

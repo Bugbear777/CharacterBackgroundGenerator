@@ -1,12 +1,12 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace Lorebound.Api.Models;
 
-public class User
+public class ApplicationUser : IdentityUser<Guid>, ICreatedAt
 {
-  public Guid Id { get; set; }
-
   public string DisplayName { get; set; } = string.Empty;
 
-  public string Email { get; set; } = string.Empty;
+  public DateTimeOffset CreatedAt { get; set; }
 
   public ICollection<CampaignSetting> CampaignSettings { get; set; }
       = new List<CampaignSetting>();
