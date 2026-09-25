@@ -23,6 +23,9 @@ Every endpoint follows these rules so the frontend sees one consistent contract.
   `Dtos/<Resource>/` as `record` types, e.g. `Dtos/Entries/SettingEntryDto.cs`.
 - Entities are mapped with hand-written extension methods in `Mapping/`,
   e.g. `entry.ToDto()`. No AutoMapper.
+- On positional request records, put validation attributes on the parameter
+  (`record CreateX([Required] string Name)`), not `[property: Required]`;
+  MVC rejects the latter with a 500.
 
 ## Paging
 
@@ -33,3 +36,19 @@ Every endpoint follows these rules so the frontend sees one consistent contract.
   ```json
   { "items": [], "page": 1, "pageSize": 20, "totalCount": 0 }
   ```
+
+## Errors
+
+Every error is RFC 7807 `application/problem+json` with a `traceId` extension:
+
+```json
+{ "type": "...", "title": "Not Found", "status": 404, "detail": "Setting not found.", "traceId": "00-..." }
+```
+
+- Throw `NotFoundException` (404), `ForbiddenException` (403) or
+  `ConflictException` (409) from `Errors/`; `ApiExceptionHandler` maps them.
+  Their message becomes `detail`, so write it for API clients.
+- Invalid request bodies return 400 `ValidationProblemDetails` with an
+  `errors` dictionary keyed by field name.
+- Any other exception returns a generic 500 with no exception details.
+- Bodyless error statuses (e.g. unmatched routes) also return problem JSON.
