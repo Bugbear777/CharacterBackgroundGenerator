@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Lorebound.Api.Models;
 
-public class ApplicationUser : IdentityUser<Guid>
+public class ApplicationUser : IdentityUser<Guid>, ICreatedAt
 {
   public string DisplayName { get; set; } = string.Empty;
 

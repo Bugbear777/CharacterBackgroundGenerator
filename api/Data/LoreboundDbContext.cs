@@ -10,9 +10,14 @@ namespace Lorebound.Api.Data;
 public class LoreboundDbContext
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
-  public LoreboundDbContext(DbContextOptions<LoreboundDbContext> options)
+  private readonly TimeProvider _timeProvider;
+
+  public LoreboundDbContext(
+      DbContextOptions<LoreboundDbContext> options,
+      TimeProvider timeProvider)
       : base(options)
   {
+    _timeProvider = timeProvider;
   }
 
   public DbSet<CampaignSetting> CampaignSettings => Set<CampaignSetting>();
@@ -60,5 +65,45 @@ public class LoreboundDbContext
         .WithMany(entry => entry.IncomingRelationships)
         .HasForeignKey(relationship => relationship.TargetEntryId)
         .OnDelete(DeleteBehavior.Restrict);
+  }
+
+  // ExecuteUpdate/ExecuteDelete bypass these overrides; bulk updates must
+  // set UpdatedAt explicitly.
+  public override int SaveChanges(bool acceptAllChangesOnSuccess)
+  {
+    ApplyTimestamps();
+    return base.SaveChanges(acceptAllChangesOnSuccess);
+  }
+
+  public override Task<int> SaveChangesAsync(
+      bool acceptAllChangesOnSuccess,
+      CancellationToken cancellationToken = default)
+  {
+    ApplyTimestamps();
+    return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+  }
+
+  private void ApplyTimestamps()
+  {
+    var now = _timeProvider.GetUtcNow();
+
+    foreach (var entry in ChangeTracker.Entries<ICreatedAt>())
+    {
+      if (entry.State == EntityState.Added)
+      {
+        entry.Entity.CreatedAt = now;
+      }
+      else if (entry.State == EntityState.Modified)
+      {
+        // CreatedAt is write-once.
+        entry.Property(e => e.CreatedAt).IsModified = false;
+      }
+
+      if (entry.Entity is ITimestamped timestamped
+          && entry.State is EntityState.Added or EntityState.Modified)
+      {
+        timestamped.UpdatedAt = now;
+      }
+    }
   }
 }

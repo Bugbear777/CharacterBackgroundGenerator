@@ -19,6 +19,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSingleton(TimeProvider.System);
+
 builder.Services.AddDbContext<LoreboundDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
