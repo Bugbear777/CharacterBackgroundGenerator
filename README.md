@@ -58,12 +58,22 @@ CharacterBackgroundGenerator/
 ├── api/
 │   ├── Controllers/
 │   ├── Data/
+│   │   └── Migrations/
+│   ├── Dtos/
+│   ├── Errors/
+│   ├── Mapping/
 │   ├── Models/
-│   ├── Services/
 │   ├── Program.cs
 │   ├── Lorebound.Api.csproj
+│   ├── README.md          (API conventions)
 │   └── ...
 │
+├── api.Tests/             (xUnit tests for the API)
+├── docs/project-board/    (roadmap and issue definitions)
+├── Lorebound.slnx         (solution: api + api.Tests)
+├── docker-compose.yml     (local PostgreSQL)
+├── .env.example           (copy to .env)
+├── dotnet-tools.json      (pinned dotnet-ef version)
 ├── README.md
 └── .gitignore
 ```
@@ -138,10 +148,10 @@ docker compose version
 
 ## Entity Framework Core Tools
 
-Required for database migrations:
+Required for database migrations. The version is pinned in `dotnet-tools.json` at the repository root, so everyone uses the same one. From the repository root:
 
 ```powershell
-dotnet tool install --global dotnet-ef
+dotnet tool restore
 dotnet ef --version
 ```
 
@@ -811,7 +821,18 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Po
 
 Never put credentials in `appsettings*.json`. Outside development, set the `ConnectionStrings__DefaultConnection` environment variable instead.
 
-## 4. Verify
+## 4. Create the tables
+
+From the `api/` folder:
+
+```powershell
+dotnet tool restore
+dotnet ef database update
+```
+
+This applies every migration in `api/Data/Migrations/`. Run it again whenever you pull changes that add a migration.
+
+## 5. Verify
 
 Run the API (`dotnet run` in `api/`) and open `/api/health`. It should report `"database": "connected"`.
 
@@ -828,25 +849,26 @@ Postgres reads `POSTGRES_PASSWORD` only the first time it creates the `lorebound
    ```
 
 3. From `api/`, run the `dotnet user-secrets set` command from step 3 again with the new password.
-4. Re-apply migrations with `dotnet ef database update`, then verify `/api/health` as in step 4.
+4. Re-create the tables as in step 4, then verify `/api/health` as in step 5.
 
 ## Migrations
 
-Entity Framework migrations will be stored in the API project.
+Migrations live in `api/Data/Migrations/`, together with `LoreboundDbContextModelSnapshot.cs`. The first one is `InitialCreate`. Run these commands from `api/`:
 
-Typical migration commands will be run from:
+| Task | Command |
+| --- | --- |
+| Apply all migrations to your database | `dotnet ef database update` |
+| Add a migration after changing models or `LoreboundDbContext` | `dotnet ef migrations add <DescriptiveName> -o Data/Migrations` |
+| Undo your last migration, **only if it has not been pushed** | `dotnet ef migrations remove` |
+| Check that no model change is missing a migration | `dotnet ef migrations has-pending-model-changes` |
+| List migrations and which are applied | `dotnet ef migrations list` |
 
-```text
-api/
-```
+Rules:
 
-For example:
-
-```powershell
-dotnet ef database update
-```
-
-Do not create or remove migrations without coordinating with the team, since database schema changes can affect everyone.
+- **One migration per PR**, and tell the team before merging a schema change, since it affects everyone's database.
+- **Never edit or delete a migration once it is merged into `dev`.** Add a new migration to change it.
+- Always commit the migration together with the updated model snapshot.
+- If two PRs both add migrations, whoever merges second must remove theirs, pull `dev`, and re-add it so the snapshot stays consistent.
 
 ---
 
