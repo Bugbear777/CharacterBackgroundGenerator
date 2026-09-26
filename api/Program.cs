@@ -35,9 +35,19 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton(TimeProvider.System);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' is not configured. For local " +
+        "development run, from the api folder: dotnet user-secrets set " +
+        "\"ConnectionStrings:DefaultConnection\" \"Host=localhost;Port=5432;" +
+        "Database=lorebound;Username=lorebound;Password=<your .env password>\". " +
+        "Elsewhere set the ConnectionStrings__DefaultConnection environment variable.");
+}
+
 builder.Services.AddDbContext<LoreboundDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 
