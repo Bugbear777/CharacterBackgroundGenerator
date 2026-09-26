@@ -52,3 +52,14 @@ Every error is RFC 7807 `application/problem+json` with a `traceId` extension:
   `errors` dictionary keyed by field name.
 - Any other exception returns a generic 500 with no exception details.
 - Bodyless error statuses (e.g. unmatched routes) also return problem JSON.
+
+## CORS
+
+- Origins come from `Cors:AllowedOrigins` (a string array). Development
+  allows `http://localhost:3000` via `appsettings.Development.json`; in
+  production set `Cors__AllowedOrigins__0` (and `__1`, ...) as environment variables.
+- Credentials are allowed so the auth cookie is sent, so the origin list is
+  always explicit, never `*`.
+- `AllowAnyHeader()` echoes requested headers (including `X-Requested-With`).
+  Do not add `WithHeaders(...)` alongside it: that disables any-header and
+  blocks `Content-Type`.

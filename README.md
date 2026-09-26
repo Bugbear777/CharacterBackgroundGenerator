@@ -119,6 +119,23 @@ Verify installation:
 dotnet --version
 ```
 
+## Docker Desktop
+
+Docker runs the local PostgreSQL database. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/), start it, then verify:
+
+```powershell
+docker compose version
+```
+
+## Entity Framework Core Tools
+
+Required for database migrations:
+
+```powershell
+dotnet tool install --global dotnet-ef
+dotnet ef --version
+```
+
 ## Recommended Development Tools
 
 The following are recommended but not required:
@@ -340,6 +357,8 @@ dotnet restore
 
 This downloads the required NuGet packages.
 
+The API also needs a database connection string. Complete [Database Development](#database-development) once before the first run; without it the API stops at startup with a message explaining what to set.
+
 ## Start the API
 
 Run:
@@ -378,9 +397,12 @@ A successful response should look similar to:
 ```json
 {
   "status": "healthy",
-  "application": "Lorebound API"
+  "application": "Lorebound API",
+  "database": "connected"
 }
 ```
+
+If the database is not running, the endpoint returns `503` with `"database": "unreachable"`.
 
 ## Stop the API
 
@@ -748,9 +770,43 @@ Do not place database passwords or private credentials into files committed to G
 
 # Database Development
 
-Once database functionality is enabled, developers may need a local PostgreSQL database.
+The API uses PostgreSQL 17, run locally with Docker Compose. Do this once after cloning.
 
-Database setup instructions should be added to this README once the database configuration is finalized.
+## 1. Create your `.env` file
+
+From the repository root, copy the example and change `POSTGRES_PASSWORD`:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+`.env` is git-ignored. Never commit it.
+
+## 2. Start the database
+
+From the repository root:
+
+```powershell
+docker compose up -d
+```
+
+This starts a `lorebound-postgres` container on port 5432 with data kept in the `lorebound-pgdata` volume. Check it with `docker compose ps`; stop it with `docker compose down` (add `-v` to also delete the data).
+
+## 3. Give the API the connection string
+
+The connection string is stored with .NET user secrets, outside the repository. From the `api/` folder, using the values from your `.env`:
+
+```powershell
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=lorebound;Username=lorebound;Password=<POSTGRES_PASSWORD from .env>"
+```
+
+Never put credentials in `appsettings*.json`. Outside development, set the `ConnectionStrings__DefaultConnection` environment variable instead.
+
+## 4. Verify
+
+Run the API (`dotnet run` in `api/`) and open `/api/health`. It should report `"database": "connected"`.
+
+## Migrations
 
 Entity Framework migrations will be stored in the API project.
 
