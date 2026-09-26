@@ -19,14 +19,23 @@ The application allows Game Masters to define information about their setting an
 - [Prerequisites](#prerequisites)
 - [Cloning the Repository](#cloning-the-repository)
 - [Branching and Git Workflow](#branching-and-git-workflow)
+- [Where to Run Git Commands](#where-to-run-git-commands)
 - [Running the Frontend](#running-the-frontend)
 - [Running the API](#running-the-api)
 - [Running the Full Application](#running-the-full-application)
 - [Testing](#testing)
+- [Testing Frontend and API Together](#testing-frontend-and-api-together)
 - [Submitting Changes](#submitting-changes)
+- [Creating a Pull Request](#creating-a-pull-request)
 - [Keeping Your Branch Updated](#keeping-your-branch-updated)
+- [After a Pull Request Is Merged](#after-a-pull-request-is-merged)
 - [Environment Configuration](#environment-configuration)
+- [Database Development](#database-development)
+  - [Changing the Database Password](#changing-the-database-password)
+- [Pulling New Dependencies](#pulling-new-dependencies)
+- [Common Development Workflow](#common-development-workflow)
 - [Troubleshooting](#troubleshooting)
+- [Team Development Rules](#team-development-rules)
 
 ---
 
