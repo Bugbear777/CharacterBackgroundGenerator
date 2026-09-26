@@ -806,6 +806,21 @@ Never put credentials in `appsettings*.json`. Outside development, set the `Conn
 
 Run the API (`dotnet run` in `api/`) and open `/api/health`. It should report `"database": "connected"`.
 
+## Changing the database password
+
+Postgres reads `POSTGRES_PASSWORD` only the first time it creates the `lorebound-pgdata` volume. Editing `.env` afterwards does **not** change the password of the existing database. To change it:
+
+1. Update `POSTGRES_PASSWORD` in `.env`.
+2. Recreate the database. **This deletes all local data:**
+
+   ```powershell
+   docker compose down -v
+   docker compose up -d
+   ```
+
+3. From `api/`, run the `dotnet user-secrets set` command from step 3 again with the new password.
+4. Re-apply migrations with `dotnet ef database update`, then verify `/api/health` as in step 4.
+
 ## Migrations
 
 Entity Framework migrations will be stored in the API project.
@@ -980,6 +995,21 @@ dotnet run
 ```
 
 Check the terminal output for errors.
+
+If it stops with `Connection string 'DefaultConnection' is not configured`, complete [Database Development](#database-development).
+
+---
+
+## `password authentication failed for user "lorebound"`
+
+`/api/health` returns `503` and the API log shows this error when the password in your user secret does not match the database.
+
+1. Compare the `Password=` in `dotnet user-secrets list` (run in `api/`) with `POSTGRES_PASSWORD` in `.env`.
+2. If they match but it still fails, `.env` was probably changed after the database was first created. Follow [Changing the database password](#changing-the-database-password).
+
+## `/api/health` reports `"database": "unreachable"`
+
+The database container is not running. From the repository root run `docker compose up -d`, and check that Docker Desktop is started and `docker compose ps` shows `lorebound-postgres` as healthy.
 
 ---
 
