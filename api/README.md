@@ -14,6 +14,10 @@ Every endpoint follows these rules so the frontend sees one consistent contract.
 - Every enum column is stored as a string. `LoreboundDbContext.ConfigureConventions`
   applies this to all enum properties, so new enums (`SettingRole`,
   `CharacterStatus`, ...) need no extra configuration.
+- Schema changes ship as EF Core migrations in `Data/Migrations/`; see
+  "Migrations" in the root README for commands and rules.
+- User emails are unique at the database level (`EmailIndex` on
+  `NormalizedEmail`), not only through Identity's app-level check.
 - Entities implementing `ITimestamped` get `CreatedAt`/`UpdatedAt` set on save.
   `ExecuteUpdate`/`ExecuteDelete` bypass this, so set `UpdatedAt` yourself.
 

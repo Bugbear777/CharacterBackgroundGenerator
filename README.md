@@ -19,14 +19,23 @@ The application allows Game Masters to define information about their setting an
 - [Prerequisites](#prerequisites)
 - [Cloning the Repository](#cloning-the-repository)
 - [Branching and Git Workflow](#branching-and-git-workflow)
+- [Where to Run Git Commands](#where-to-run-git-commands)
 - [Running the Frontend](#running-the-frontend)
 - [Running the API](#running-the-api)
 - [Running the Full Application](#running-the-full-application)
 - [Testing](#testing)
+- [Testing Frontend and API Together](#testing-frontend-and-api-together)
 - [Submitting Changes](#submitting-changes)
+- [Creating a Pull Request](#creating-a-pull-request)
 - [Keeping Your Branch Updated](#keeping-your-branch-updated)
+- [After a Pull Request Is Merged](#after-a-pull-request-is-merged)
 - [Environment Configuration](#environment-configuration)
+- [Database Development](#database-development)
+  - [Changing the Database Password](#changing-the-database-password)
+- [Pulling New Dependencies](#pulling-new-dependencies)
+- [Common Development Workflow](#common-development-workflow)
 - [Troubleshooting](#troubleshooting)
+- [Team Development Rules](#team-development-rules)
 
 ---
 
@@ -49,12 +58,22 @@ CharacterBackgroundGenerator/
 ├── api/
 │   ├── Controllers/
 │   ├── Data/
+│   │   └── Migrations/
+│   ├── Dtos/
+│   ├── Errors/
+│   ├── Mapping/
 │   ├── Models/
-│   ├── Services/
 │   ├── Program.cs
 │   ├── Lorebound.Api.csproj
+│   ├── README.md          (API conventions)
 │   └── ...
 │
+├── api.Tests/             (xUnit tests for the API)
+├── docs/project-board/    (roadmap and issue definitions)
+├── Lorebound.slnx         (solution: api + api.Tests)
+├── docker-compose.yml     (local PostgreSQL)
+├── .env.example           (copy to .env)
+├── dotnet-tools.json      (pinned dotnet-ef version)
 ├── README.md
 └── .gitignore
 ```
@@ -129,10 +148,10 @@ docker compose version
 
 ## Entity Framework Core Tools
 
-Required for database migrations:
+Required for database migrations. The version is pinned in `dotnet-tools.json` at the repository root, so everyone uses the same one. From the repository root:
 
 ```powershell
-dotnet tool install --global dotnet-ef
+dotnet tool restore
 dotnet ef --version
 ```
 
@@ -802,27 +821,54 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Po
 
 Never put credentials in `appsettings*.json`. Outside development, set the `ConnectionStrings__DefaultConnection` environment variable instead.
 
-## 4. Verify
+## 4. Create the tables
 
-Run the API (`dotnet run` in `api/`) and open `/api/health`. It should report `"database": "connected"`.
-
-## Migrations
-
-Entity Framework migrations will be stored in the API project.
-
-Typical migration commands will be run from:
-
-```text
-api/
-```
-
-For example:
+From the `api/` folder:
 
 ```powershell
+dotnet tool restore
 dotnet ef database update
 ```
 
-Do not create or remove migrations without coordinating with the team, since database schema changes can affect everyone.
+This applies every migration in `api/Data/Migrations/`. Run it again whenever you pull changes that add a migration.
+
+## 5. Verify
+
+Run the API (`dotnet run` in `api/`) and open `/api/health`. It should report `"database": "connected"`.
+
+## Changing the database password
+
+Postgres reads `POSTGRES_PASSWORD` only the first time it creates the `lorebound-pgdata` volume. Editing `.env` afterwards does **not** change the password of the existing database. To change it:
+
+1. Update `POSTGRES_PASSWORD` in `.env`.
+2. Recreate the database. **This deletes all local data:**
+
+   ```powershell
+   docker compose down -v
+   docker compose up -d
+   ```
+
+3. From `api/`, run the `dotnet user-secrets set` command from step 3 again with the new password.
+4. Re-create the tables as in step 4, then verify `/api/health` as in step 5.
+
+## Migrations
+
+Migrations live in `api/Data/Migrations/`, together with `LoreboundDbContextModelSnapshot.cs`. The first one is `InitialCreate`. Run these commands from `api/`:
+
+| Task | Command |
+| --- | --- |
+| Apply all migrations to your database | `dotnet ef database update` |
+| Add a migration after changing models or `LoreboundDbContext` | `dotnet ef migrations add <DescriptiveName> -o Data/Migrations` |
+| Undo your last migration, **only if it has not been pushed** | `dotnet ef migrations remove` |
+| Check that no model change is missing a migration | `dotnet ef migrations has-pending-model-changes` |
+| List migrations and which are applied | `dotnet ef migrations list` |
+
+Rules:
+
+- **One migration per PR**, and tell the team before merging a schema change, since it affects everyone's database.
+- **Never edit or delete a migration once it is merged into `dev`.** Add a new migration to change it.
+- Always commit the migration together with the updated model snapshot.
+- If two PRs both add migrations, whoever merges second must remove theirs, pull `dev`, and re-add it so the snapshot stays consistent.
 
 ---
 
@@ -980,6 +1026,21 @@ dotnet run
 ```
 
 Check the terminal output for errors.
+
+If it stops with `Connection string 'DefaultConnection' is not configured`, complete [Database Development](#database-development).
+
+---
+
+## `password authentication failed for user "lorebound"`
+
+`/api/health` returns `503` and the API log shows this error when the password in your user secret does not match the database.
+
+1. Compare the `Password=` in `dotnet user-secrets list` (run in `api/`) with `POSTGRES_PASSWORD` in `.env`.
+2. If they match but it still fails, `.env` was probably changed after the database was first created. Follow [Changing the database password](#changing-the-database-password).
+
+## `/api/health` reports `"database": "unreachable"`
+
+The database container is not running. From the repository root run `docker compose up -d`, and check that Docker Desktop is started and `docker compose ps` shows `lorebound-postgres` as healthy.
 
 ---
 
