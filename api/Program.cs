@@ -22,12 +22,22 @@ builder.Services.AddProblemDetails(options =>
             Activity.Current?.Id ?? context.HttpContext.TraceIdentifier);
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
+// Explicit origin allowlist from Cors:AllowedOrigins (in production, set
+// Cors__AllowedOrigins__0, __1, ...). Credentials are allowed so the auth
+// cookie is sent, which is why a wildcard origin is never used.
+var allowedOrigins =
+    builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000")
+            .WithOrigins(allowedOrigins)
+            .AllowCredentials()
+            // Echoes the requested headers, which covers X-Requested-With for
+            // the CSRF check (P1-10; CorsTests asserts it). Adding WithHeaders()
+            // here would disable any-header and block Content-Type.
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
